@@ -38,6 +38,8 @@ class Game {
 
                 const [fx, fy] = this.selected;
                 const fPiece = this.board.grid[fx][fy];
+                console.log(fPiece.position);
+                console.log(fPiece);
 
                 const moves = fPiece.get_possible_moves(this.board.grid);
 
@@ -57,7 +59,6 @@ class Game {
 
                 // move
 
-                console.log("hello");
                 fPiece.move_to([x, y]);
                 this.board.grid[x][y] = fPiece;
                 this.board.grid[fx][fy] = null;

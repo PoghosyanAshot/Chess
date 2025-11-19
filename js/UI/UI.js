@@ -105,6 +105,8 @@ export class UI {
         const activeP = document.querySelectorAll(".active_state_on_piece");
         const clicked_dark = document.querySelectorAll(".clicked_dark");
         const clicked_light = document.querySelectorAll(".clicked_light");
+        const activeSOPD = document.querySelectorAll(".active_state_on_piece_dark");
+        const activeSOPL = document.querySelectorAll(".active_state_on_piece_light");
 
         for (const f of active) {
             f.classList.remove("active_state");
@@ -120,6 +122,14 @@ export class UI {
 
         for (const f of clicked_light) {
             f.classList.remove("clicked_light");
+        }
+
+        for (const f of activeSOPD) {
+            f.classList.remove("active_state_on_piece_dark");
+        }
+
+        for (const f of activeSOPL) {
+            f.classList.remove("active_state_on_piece_light");
         }
     }
 

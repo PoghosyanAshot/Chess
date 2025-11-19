@@ -7,7 +7,8 @@ export class Piece {
     }
 
     move_to(new_position) {
-        this.position = new_position;
+        const [nx, ny] = new_position
+        this.position = [+nx, +ny];
         this.has_moved = true;
     }
 

@@ -10,7 +10,6 @@ export class Board {
         this.grid = Array.from({ length: 8 }, () => Array(8).fill(null));
 
         this.init_board();
-        console.log(this.grid);
     }
 
     init_board() {
