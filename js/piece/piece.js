@@ -4,12 +4,14 @@ export class Piece {
         this.position = position;
         this.type = type;
         this.has_moved = false;
+        this.countMoves = 0;
     }
 
     move_to(new_position) {
         const [nx, ny] = new_position
         this.position = [+nx, +ny];
         this.has_moved = true;
+        ++this.countMoves;
     }
 
     get_possible_moves(board_state, ignoreCheck = false) {

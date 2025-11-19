@@ -9,7 +9,6 @@ export class Knight extends Piece {
         const size = 8;
         const moves = [];
         const [x, y] = this.position;
-        console.log([x, y]);
         const dirs = [
             [-2, -1],
             [-2, 1],

@@ -1,6 +1,7 @@
 export class UI {
     constructor() {
         this.board = document.getElementById("board");
+        this.counterMoves = 1;
     }
 
     drawBoard() {
@@ -66,7 +67,6 @@ export class UI {
 
     clearPieces() {
         const board = document.getElementById("board");
-        console.log(board);
         const field = board.querySelectorAll(".field");
 
         for (const f of field) {
@@ -135,5 +135,26 @@ export class UI {
 
     getId(x, y) {
         return `${x}-${y}`;
+    }
+
+    writeMoves(move) {
+        const moves = document.getElementById("moves");
+        const p = document.createElement("p");
+        p.id = move;
+        p.innerHTML = `${this.counterMoves++}: ${move}`;
+        moves.appendChild(p);
+    }
+
+    removeMove(history, undo) {
+        const id = history.pop();
+        undo.push(id);
+        const p = document.getElementById(id);
+        const moves = document.getElementById("moves");
+        moves.removeChild(p);
+        return this.getUndoPos(id);
+    }
+
+    getUndoPos(id) {
+        return id.split("-");
     }
 }
