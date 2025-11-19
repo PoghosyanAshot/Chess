@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* HEADER => HEADER START*/
+
+.header {
+    background-color: #312e2b;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 50px 150px;
+}
+
+.context {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.context h1 {
+    color: #fff;
+
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: weight;
+    font-style: normal;
+    text-align: center;
+}
+
+.header_button {
+    margin: 20px;
+}
+
+.header_button a {
+    position: relative;
+    display: inline-block;
+    border: 2px solid #fefefe;
+    padding: 15px 30px;
+    text-transform: uppercase;
+    color: #fefefe;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 20px;
+    width: 300px;
+}
+
+.header_button a::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% - 12px);
+    background-color: #312e2b;
+    transition: 0.3s ease-in-out;
+    transform: scaleY(1);
+}
+
+.header_button a:hover::before {
+    transform: scaleY(0);
+}
+
+.header_button a::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: -2px;
+    height: calc(100% + 4px);
+    width: calc(100% - 12px);
+    background-color: #312e2b;
+    transition: 0.3s ease-in-out;
+    transform: scaleX(1);
+    transition-delay: 0.5s;
+}
+
+.header_button a:hover::after {
+    transform: scaleX(0);
+}
+
+.header_button a:hover {
+    border-color: #5d9948;
+    color: #5d9948;
+}
+
+.header_button a span {
+    position: relative;
+    z-index: 3;
+}
+
+.header_button {
+    background-color: none;
+    text-decoration: none;
+    background-color: #312e2b;
+    border: none;
+}
+
+.header_button a span {
+    padding: 0px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* HEADER => HEADER END*/

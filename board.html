@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/board.css">
+    <link rel="shortcut icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+
+    <title>Chess</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="board-wrapper">
+            <div id="player_2" class="player">
+                <div class="data">
+                    <i class="fa-solid fa-user black_player"></i>
+                    <span>Player 2</span>
+                </div>
+                <div class="timer">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>10:00</span>
+                </div>
+            </div>
+            <div id="board" class="board"></div>
+            <div id="player_1" class="player">
+                <div class="data">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Player 1</span>
+                </div>
+                <div class="timer">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>10:00</span>
+                </div>
+            </div>
+        </div>
+        <div class="history">
+            <p class="history_h">Moves</p>
+            <div class="underline"></div>
+            <divc class="moves">
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
