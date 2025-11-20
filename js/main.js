@@ -9,12 +9,18 @@ class Game {
         this.curentPlayer = "white";
         this.history = [];
         this.removesMoves = [];
+        this.eatenPieces = {};
         this.positions = {};
         this.positionsIdx = {};
         this.lastMove = null;
         this.undo = document.getElementById("undo");
         this.redo = document.getElementById("redo");
+        this.counterMoves = 0;
 
+        this.startGame();
+    }
+
+    startGame() {
         this.ui.drawBoard();
         this.ui.showPieces(this.board.grid);
         this.addEvents();
@@ -23,13 +29,63 @@ class Game {
         this.addEventForUndoRedo();
     }
 
+    // move piece
+
+    move(piece, to) {
+        const [fx, fy] = piece.position;
+        const [tx, ty] = to;
+        const moves = piece.get_possible_moves(this.board.grid);
+        let legal = false;
+
+        // check if the piece can move
+        for (const [mx, my] of moves) {
+            if (mx == tx && my == ty) {
+                legal = true;
+                break;
+            }
+        }
+
+        if (!legal) {
+            this.selected = null;
+            this.ui.clearHighlights();
+            return;
+        }
+
+        // move phase
+        ++this.counterMoves;
+
+        if (this.board.grid[tx][ty]) {
+            this.eatenPieces[`${this.counterMoves}:${this.getId(tx, ty)}`] =
+                this.board.grid[tx][ty];
+        }
+
+        piece.move_to([tx, ty]);
+        this.board.grid[tx][ty] = piece;
+        this.board.grid[fx][fy] = null;
+
+        this.history.push(`${this.positions[`${fx}-${fy}`]}-${this.positions[`${tx}-${ty}`]}`);
+
+        this.lastMove = [
+            [fx, fy],
+            [tx, ty],
+        ];
+
+        // change current player
+        this.curentPlayer = this.curentPlayer == "white" ? "black" : "white";
+
+        // write move in history board
+        this.ui.writeMoves(this.history[this.history.length - 1]);
+    }
+
+    // adding events
+
     addEvents() {
         const fields = this.ui.board.children;
 
         for (const field of fields) {
             field.addEventListener("click", (event) => {
                 const clicked = event.target.closest(".field");
-                if (!clicked) return;
+                if (!clicked || this.removesMoves.length) return;
 
                 const [x, y] = this.getPosition(clicked.id);
                 const piece = this.board.grid[x][y];
@@ -49,36 +105,7 @@ class Game {
                 const [fx, fy] = this.selected;
                 const fPiece = this.board.grid[fx][fy];
 
-                const moves = fPiece.get_possible_moves(this.board.grid);
-
-                let legal = false;
-                for (const [mx, my] of moves) {
-                    if (mx == x && my == y) {
-                        legal = true;
-                        break;
-                    }
-                }
-
-                if (!legal) {
-                    this.selected = null;
-                    this.ui.clearHighlights();
-                    return;
-                }
-
-                // move
-
-                fPiece.move_to([x, y]);
-                this.board.grid[x][y] = fPiece;
-                this.board.grid[fx][fy] = null;
-
-                this.history.push(
-                    `${this.positions[`${fx}-${fy}`]}-${this.positions[`${x}-${y}`]}`
-                );
-
-                this.lastMove = [
-                    [fx, fy],
-                    [x, y],
-                ];
+                this.move(fPiece, [x, y]);
 
                 // render
 
@@ -91,20 +118,58 @@ class Game {
 
                 // change curent player
 
-                this.curentPlayer = this.curentPlayer == "white" ? "black" : "white";
-
-                this.ui.writeMoves(this.history[this.history.length - 1]);
+                // write move in history board
             });
         }
     }
 
-    getPosition(id) {
-        return id.split("-");
+    addEventForUndoRedo() {
+        this.undo.addEventListener("click", (event) => {
+            if (!this.history.length) {
+                return;
+            }
+
+            const counter = this.counterMoves--;
+            const [to, from] = this.ui.removeMove(this.history, this.removesMoves);
+            const [fx, fy] = this.positionsIdx[from];
+            const [tx, ty] = this.positionsIdx[to];
+            const piece = this.board.grid[fx][fy];
+
+            if (this.eatenPieces[`${counter}:${this.getId(fx, fy)}`]) {
+                this.board.grid[fx][fy] = this.eatenPieces[`${counter}:${this.getId(fx, fy)}`];
+                delete this.eatenPieces[`${counter}:${this.getId(fx, fy)}`];
+            } else {
+                this.board.grid[fx][fy] = null;
+            }
+
+            this.board.grid[tx][ty] = piece;
+            piece.move_to([tx, ty]);
+            piece.countMoves -= 2;
+
+            if (piece.countMoves <= 0) {
+                piece.has_moved = false;
+            }
+
+            this.ui.showPieces(this.board.grid);
+            this.selected = null;
+        });
+
+        this.redo.addEventListener("click", (event) => {
+            if (!this.removesMoves.length) return;
+
+            const move = this.removesMoves.pop();
+            let [from, to] = this.getPosition(move);
+            from = this.positionsIdx[from];
+            to = this.positionsIdx[to];
+            const [fx, fy] = from;
+            const piece = this.board.grid[fx][fy];
+
+            this.move(piece, to);
+            this.ui.showPieces(this.board.grid);
+        });
     }
 
-    getId(x, y) {
-        return `${x}-${y}`;
-    }
+    // init positions
 
     addPositions(map) {
         let num = 8;
@@ -128,33 +193,14 @@ class Game {
         }
     }
 
-    addEventForUndoRedo() {
-        this.undo.addEventListener("click", (event) => {
-            if (!this.history.length) {
-                return;
-            }
+    // helper functions
 
-            const [to, from] = this.ui.removeMove(this.history, this.removesMoves);
-            const [fx, fy] = this.positionsIdx[from];
-            const [tx, ty] = this.positionsIdx[to];
-            const piece = this.board.grid[fx][fy];
+    getPosition(id) {
+        return id.split("-");
+    }
 
-            this.board.grid[tx][ty] = piece;
-            this.board.grid[fx][fy] = null;
-            piece.move_to([tx, ty]);
-            piece.countMoves -= 2;
-
-            if (piece.countMoves <= 0) {
-                piece.has_moved = false;
-            }
-
-            this.ui.showPieces(this.board.grid);
-            this.curentPlayer = this.curentPlayer == "white" ? "black" : "white";
-        });
-
-        this.redo.addEventListener("click", (event) => {
-            console.log("world");
-        });
+    getId(x, y) {
+        return `${x}-${y}`;
     }
 }
 

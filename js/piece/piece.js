@@ -8,7 +8,7 @@ export class Piece {
     }
 
     move_to(new_position) {
-        const [nx, ny] = new_position
+        const [nx, ny] = new_position;
         this.position = [+nx, +ny];
         this.has_moved = true;
         ++this.countMoves;
@@ -67,7 +67,6 @@ export class Piece {
 
     simulate_move(board_state, from, to) {
         const size = 8;
-
         const copy = Array.from({ length: size }, () => Array(size).fill(null));
 
         for (let i = 0; i < size; ++i) {
