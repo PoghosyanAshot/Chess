@@ -1,7 +1,6 @@
 export class UI {
     constructor() {
         this.board = document.getElementById("board");
-        this.counterMoves = 1;
     }
 
     drawBoard() {
@@ -100,6 +99,31 @@ export class UI {
         }
     }
 
+    highlightLastMove(lastMove) {
+        this.clearHighlightLastMove();
+
+        const [fx, fy] = lastMove[0];
+        const [tx, ty] = lastMove[1];
+        const from = document.getElementById(this.getId(fx, fy));
+        const to = document.getElementById(this.getId(tx, ty));
+
+        from.classList.add((fx + fy) & 1 ? "lastMove_dark" : "lastMove_light");
+        to.classList.add((tx + ty) & 1 ? "lastMove_dark" : "lastMove_light");
+    }
+
+    clearHighlightLastMove() {
+        const dark = document.querySelectorAll(".lastMove_dark");
+        const light = document.querySelectorAll(".lastMove_light");
+
+        for (const f of dark) {
+            f.classList.remove("lastMove_dark");
+        }
+
+        for (const f of light) {
+            f.classList.remove("lastMove_light");
+        }
+    }
+
     clearHighlights() {
         const active = document.querySelectorAll(".active_state");
         const activeP = document.querySelectorAll(".active_state_on_piece");
@@ -137,11 +161,11 @@ export class UI {
         return `${x}-${y}`;
     }
 
-    writeMoves(move) {
+    writeMoves(move, count) {
         const moves = document.getElementById("moves");
         const p = document.createElement("p");
         p.id = move;
-        p.innerHTML = `${this.counterMoves++}: ${move}`;
+        p.innerHTML = `${count}: ${move}`;
         moves.appendChild(p);
     }
 
@@ -156,5 +180,9 @@ export class UI {
 
     getUndoPos(id) {
         return id.split("-");
+    }
+
+    getId(x, y) {
+        return `${x}-${y}`;
     }
 }

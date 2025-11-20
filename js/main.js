@@ -52,6 +52,7 @@ class Game {
         }
 
         // move phase
+
         ++this.counterMoves;
 
         if (this.board.grid[tx][ty]) {
@@ -67,14 +68,17 @@ class Game {
 
         this.lastMove = [
             [fx, fy],
-            [tx, ty],
+            [+tx, +ty],
         ];
 
         // change current player
         this.curentPlayer = this.curentPlayer == "white" ? "black" : "white";
 
         // write move in history board
-        this.ui.writeMoves(this.history[this.history.length - 1]);
+        this.ui.writeMoves(this.history[this.history.length - 1], this.counterMoves);
+
+        // highlight the last move
+        this.ui.highlightLastMove(this.lastMove);
     }
 
     // adding events
@@ -115,10 +119,6 @@ class Game {
 
                 this.selected = null;
                 this.ui.clearHighlights();
-
-                // change curent player
-
-                // write move in history board
             });
         }
     }
@@ -146,6 +146,20 @@ class Game {
             piece.move_to([tx, ty]);
             piece.countMoves -= 2;
 
+            const lm = this.history[this.history.length - 1];
+
+            if (!lm) {
+                this.ui.clearHighlightLastMove();
+            } else {
+                const id = this.getPosition(lm);
+                const [fx, fy] = this.positionsIdx[id[0]];
+                const [tx, ty] = this.positionsIdx[id[1]];
+                this.ui.highlightLastMove([
+                    [fx, fy],
+                    [tx, ty],
+                ]);
+            }
+
             if (piece.countMoves <= 0) {
                 piece.has_moved = false;
             }
@@ -166,6 +180,7 @@ class Game {
 
             this.move(piece, to);
             this.ui.showPieces(this.board.grid);
+            this.curentPlayer = this.curentPlayer == "white" ? "black" : "white";
         });
     }
 

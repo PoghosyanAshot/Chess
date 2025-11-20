@@ -1,6 +1,9 @@
 :root {
     --light-bg: #ebecd2;
     --dark-bg: #719557;
+    --bg: #312e2b;
+    --moves-bg: #262522;
+    --moves-h: #21201e;
 }
 
 * {
@@ -193,9 +196,31 @@
     background-color: #f5f682;
 }
 
+.lastMove_dark {
+    background-color: #b9ca43;
+}
+
+.lastMove_light {
+    background-color: #f5f682;
+}
+
 .moves {
     width: 100%;
     height: 700px;
+    overflow-y: auto;
+}
+
+.moves::-webkit-scrollbar {
+    width: 15px;
+}
+
+.moves::-webkit-scrollbar-track {
+    background: #262522;
+}
+
+.moves::-webkit-scrollbar-thumb {
+    background: #21201e;
+    border-radius: 20px;
 }
 
 .footer_moves {
