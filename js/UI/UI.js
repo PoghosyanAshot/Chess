@@ -1,6 +1,10 @@
 export class UI {
     constructor() {
         this.board = document.getElementById("board");
+        this.moves = document.getElementById("moves");
+        this.lineRow = null;
+        this.counter = 1;
+        this.counterAllMoves = 1;
     }
 
     drawBoard() {
@@ -157,16 +161,50 @@ export class UI {
         }
     }
 
-    getId(x, y) {
-        return `${x}-${y}`;
+    writeMoves(move, piece) {
+        const moves = this.moves;
+        const [from, to] = this.getUndoPos(move.moveText);
+        const fromText = from;
+        const toText = to;
+
+        this.clearActiveNode();
+
+        const node = document.createElement("div");
+        const span = document.createElement("span");
+
+        node.id = this.counterAllMoves++;
+        node.classList.add("node", "active_node");
+
+        if (piece.type != "pawn") {
+            const icon = document.createElement("img");
+            icon.src = `../../images/pieces/${piece.color}-${piece.type}.png`;
+            node.appendChild(icon);
+        }
+
+        span.innerHTML = toText;
+        node.appendChild(span);
+
+        if (this.lineRow && this.lineRow.children.length < 2) {
+            this.lineRow.appendChild(node);
+        } else {
+            this.lineRow = document.createElement("div");
+            this.lineRow.classList.add(
+                "line-row",
+                this.counter & 1 ? "line-row-dark" : "line-row-light"
+            );
+            this.lineRow.innerHTML = `${this.counter++}.`;
+            this.lineRow.appendChild(node);
+        }
+
+        moves.appendChild(this.lineRow);
     }
 
-    writeMoves(move, count) {
-        const moves = document.getElementById("moves");
-        const p = document.createElement("p");
-        p.id = move;
-        p.innerHTML = `${count}: ${move}`;
-        moves.appendChild(p);
+    clearActiveNode() {
+        const active = document.querySelectorAll(".active_node");
+
+        for (const node of active) {
+            node.classList.remove("active_node");
+        }
     }
 
     removeMove(history, undo) {

@@ -16,6 +16,7 @@ class Game {
         this.undo = document.getElementById("undo");
         this.redo = document.getElementById("redo");
         this.counterMoves = 0;
+        this.moveId = 0;
 
         this.startGame();
     }
@@ -26,7 +27,12 @@ class Game {
         this.addEvents();
         this.addPositions(this.positions);
         this.addPositionsIdx(this.positionsIdx);
-        this.addEventForUndoRedo();
+        this.history.push({
+            idx: 0,
+            state: this.getBoardState(this.board.grid),
+            lastMove: [null, null],
+            moveText: "",
+        });
     }
 
     // move piece
@@ -64,18 +70,21 @@ class Game {
         this.board.grid[tx][ty] = piece;
         this.board.grid[fx][fy] = null;
 
-        this.history.push(`${this.positions[`${fx}-${fy}`]}-${this.positions[`${tx}-${ty}`]}`);
-
         this.lastMove = [
             [fx, fy],
             [+tx, +ty],
         ];
 
+        this.history.push({
+            moveText: `${this.positions[`${fx}-${fy}`]}-${this.positions[`${tx}-${ty}`]}`,
+            lastMove: this.lastMove,
+            state: this.getBoardState(),
+            idx: this.counterMoves - 1,
+        });
+
         // change current player
         this.curentPlayer = this.curentPlayer == "white" ? "black" : "white";
-
-        // write move in history board
-        this.ui.writeMoves(this.history[this.history.length - 1], this.counterMoves);
+        this.ui.writeMoves(this.history[this.history.length - 1], piece);
 
         // highlight the last move
         this.ui.highlightLastMove(this.lastMove);
@@ -88,8 +97,10 @@ class Game {
 
         for (const field of fields) {
             field.addEventListener("click", (event) => {
+                if (this.moveId < this.history.length - 1) return;
                 const clicked = event.target.closest(".field");
-                if (!clicked || this.removesMoves.length) return;
+
+                if (!clicked) return;
 
                 const [x, y] = this.getPosition(clicked.id);
                 const piece = this.board.grid[x][y];
@@ -110,6 +121,7 @@ class Game {
                 const fPiece = this.board.grid[fx][fy];
 
                 this.move(fPiece, [x, y]);
+                ++this.moveId;
 
                 // render
 
@@ -119,68 +131,55 @@ class Game {
 
                 this.selected = null;
                 this.ui.clearHighlights();
+
+                // add event on nodes
+
+                this.addEventsOnNodes();
             });
         }
-    }
 
-    addEventForUndoRedo() {
-        this.undo.addEventListener("click", (event) => {
-            if (!this.history.length) {
-                return;
-            }
-
-            const counter = this.counterMoves--;
-            const [to, from] = this.ui.removeMove(this.history, this.removesMoves);
-            const [fx, fy] = this.positionsIdx[from];
-            const [tx, ty] = this.positionsIdx[to];
-            const piece = this.board.grid[fx][fy];
-
-            if (this.eatenPieces[`${counter}:${this.getId(fx, fy)}`]) {
-                this.board.grid[fx][fy] = this.eatenPieces[`${counter}:${this.getId(fx, fy)}`];
-                delete this.eatenPieces[`${counter}:${this.getId(fx, fy)}`];
-            } else {
-                this.board.grid[fx][fy] = null;
-            }
-
-            this.board.grid[tx][ty] = piece;
-            piece.move_to([tx, ty]);
-            piece.countMoves -= 2;
-
-            const lm = this.history[this.history.length - 1];
-
-            if (!lm) {
+        this.undo.addEventListener("click", () => {
+            if (this.moveId > 0) {
+                const node = document.getElementById(`${--this.moveId}`);
+                this.ui.clearHighlights();
+                this.ui.showPieces(this.history[this.moveId].state);
                 this.ui.clearHighlightLastMove();
-            } else {
-                const id = this.getPosition(lm);
-                const [fx, fy] = this.positionsIdx[id[0]];
-                const [tx, ty] = this.positionsIdx[id[1]];
-                this.ui.highlightLastMove([
-                    [fx, fy],
-                    [tx, ty],
-                ]);
-            }
+                this.ui.clearActiveNode();
 
-            if (piece.countMoves <= 0) {
-                piece.has_moved = false;
+                if (node) {
+                    this.ui.highlightLastMove(this.history[this.moveId].lastMove);
+                    node.classList.add("active_node");
+                }
             }
-
-            this.ui.showPieces(this.board.grid);
-            this.selected = null;
         });
 
-        this.redo.addEventListener("click", (event) => {
-            if (!this.removesMoves.length) return;
+        this.redo.addEventListener("click", () => {
+            if (this.moveId >= this.history.length - 1) return;
 
-            const move = this.removesMoves.pop();
-            let [from, to] = this.getPosition(move);
-            from = this.positionsIdx[from];
-            to = this.positionsIdx[to];
-            const [fx, fy] = from;
-            const piece = this.board.grid[fx][fy];
+            const node = document.getElementById(`${++this.moveId}`);
 
-            this.move(piece, to);
-            this.ui.showPieces(this.board.grid);
-            this.curentPlayer = this.curentPlayer == "white" ? "black" : "white";
+            this.ui.clearHighlights();
+            this.ui.showPieces(this.history[this.moveId].state);
+            this.ui.clearHighlightLastMove();
+            this.ui.clearActiveNode();
+
+            this.ui.highlightLastMove(this.history[this.moveId].lastMove);
+            node.classList.add("active_node");
+        });
+    }
+
+    addEventsOnNodes() {
+        const nodes = document.querySelectorAll(".node");
+        const last = nodes.length - 1;
+        nodes[last].addEventListener("click", () => {
+            const id = nodes[last].id;
+            this.moveId = +id;
+            this.ui.clearHighlights();
+            this.ui.showPieces(this.history[this.moveId].state);
+            this.ui.clearHighlightLastMove();
+            this.ui.highlightLastMove(this.history[this.moveId].lastMove);
+            this.ui.clearActiveNode();
+            nodes[last].classList.add("active_node");
         });
     }
 
@@ -216,6 +215,22 @@ class Game {
 
     getId(x, y) {
         return `${x}-${y}`;
+    }
+
+    getBoardState() {
+        const board = this.board.grid;
+        const state = Array.from({ length: 8 }, () => Array(8).fill(null));
+
+        for (let i = 0; i < 8; ++i) {
+            for (let j = 0; j < 8; ++j) {
+                const piece = board[i][j];
+                if (piece) {
+                    state[i][j] = piece;
+                }
+            }
+        }
+
+        return state;
     }
 }
 
