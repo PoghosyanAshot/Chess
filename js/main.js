@@ -54,7 +54,7 @@ class Game {
         if (!legal) {
             this.selected = null;
             this.ui.clearHighlights();
-            return;
+            return false;
         }
 
         // move phase
@@ -88,6 +88,8 @@ class Game {
 
         // highlight the last move
         this.ui.highlightLastMove(this.lastMove);
+
+        return true;
     }
 
     // adding events
@@ -106,7 +108,6 @@ class Game {
                 const piece = this.board.grid[x][y];
 
                 // select piece
-
                 if (!this.selected) {
                     if (!piece || piece.color != this.curentPlayer) return;
                     this.selected = [x, y];
@@ -116,19 +117,19 @@ class Game {
                 }
 
                 // move phase
-
                 const [fx, fy] = this.selected;
                 const fPiece = this.board.grid[fx][fy];
 
-                this.move(fPiece, [x, y]);
-                ++this.moveId;
+                const hasMoved = this.move(fPiece, [x, y]);
+
+                if (hasMoved) {
+                    ++this.moveId;
+                }
 
                 // render
-
                 this.ui.showPieces(this.board.grid);
 
                 // reset selected
-
                 this.selected = null;
                 this.ui.clearHighlights();
 
@@ -141,6 +142,7 @@ class Game {
         this.undo.addEventListener("click", () => {
             if (this.moveId > 0) {
                 const node = document.getElementById(`${--this.moveId}`);
+                
                 this.ui.clearHighlights();
                 this.ui.showPieces(this.history[this.moveId].state);
                 this.ui.clearHighlightLastMove();
@@ -171,6 +173,9 @@ class Game {
     addEventsOnNodes() {
         const nodes = document.querySelectorAll(".node");
         const last = nodes.length - 1;
+
+        if (!nodes[last]) return;
+
         nodes[last].addEventListener("click", () => {
             const id = nodes[last].id;
             this.moveId = +id;
