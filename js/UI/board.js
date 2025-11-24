@@ -8,7 +8,7 @@ import { King } from "../piece/king.js";
 export class Board {
     constructor() {
         this.grid = Array.from({ length: 8 }, () => Array(8).fill(null));
-        
+
         this.init_board();
     }
 
@@ -43,5 +43,20 @@ export class Board {
         this.grid[0][5] = new Bishop("black", [0, 5], "bishop");
         this.grid[0][6] = new Knight("black", [0, 6], "knight");
         this.grid[0][7] = new Rook("black", [0, 7], "rook");
+    }
+
+    getBoardState(board) {
+        const state = Array.from({ length: 8 }, () => Array(8).fill(null));
+
+        for (let i = 0; i < 8; ++i) {
+            for (let j = 0; j < 8; ++j) {
+                const piece = board[i][j];
+                if (piece) {
+                    state[i][j] = piece;
+                }
+            }
+        }
+
+        return state;
     }
 }

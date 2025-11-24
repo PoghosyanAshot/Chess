@@ -29,7 +29,7 @@ class Game {
         this.addPositionsIdx(this.positionsIdx);
         this.history.push({
             idx: 0,
-            state: this.getBoardState(this.board.grid),
+            state: this.board.getBoardState(this.board.grid),
             lastMove: [null, null],
             moveText: "",
         });
@@ -61,6 +61,22 @@ class Game {
 
         ++this.counterMoves;
 
+        if (piece.type === "king") {
+            const row = piece.color === "black" ? 0 : 7;
+
+            if (ty == 2) {
+                const rook = this.board.grid[row][0];
+                rook.move_to([row, 3]);
+                this.board.grid[row][3] = rook;
+                this.board.grid[row][0] = null;
+            } else if (ty == 6) {
+                const rook = this.board.grid[row][7];
+                rook.move_to([row, 5]);
+                this.board.grid[row][5] = rook;
+                this.board.grid[row][7] = null;
+            }
+        }
+
         if (this.board.grid[tx][ty]) {
             this.eatenPieces[`${this.counterMoves}:${this.getId(tx, ty)}`] =
                 this.board.grid[tx][ty];
@@ -78,7 +94,7 @@ class Game {
         this.history.push({
             moveText: `${this.positions[`${fx}-${fy}`]}-${this.positions[`${tx}-${ty}`]}`,
             lastMove: this.lastMove,
-            state: this.getBoardState(),
+            state: this.board.getBoardState(this.board.grid),
             idx: this.counterMoves - 1,
         });
 
@@ -142,7 +158,7 @@ class Game {
         this.undo.addEventListener("click", () => {
             if (this.moveId > 0) {
                 const node = document.getElementById(`${--this.moveId}`);
-                
+
                 this.ui.clearHighlights();
                 this.ui.showPieces(this.history[this.moveId].state);
                 this.ui.clearHighlightLastMove();
@@ -220,22 +236,6 @@ class Game {
 
     getId(x, y) {
         return `${x}-${y}`;
-    }
-
-    getBoardState() {
-        const board = this.board.grid;
-        const state = Array.from({ length: 8 }, () => Array(8).fill(null));
-
-        for (let i = 0; i < 8; ++i) {
-            for (let j = 0; j < 8; ++j) {
-                const piece = board[i][j];
-                if (piece) {
-                    state[i][j] = piece;
-                }
-            }
-        }
-
-        return state;
     }
 }
 

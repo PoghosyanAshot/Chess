@@ -80,6 +80,8 @@ export class UI {
         }
     }
 
+    // highlights
+
     highlights(board_state, piece) {
         if (!piece) return;
 
@@ -130,6 +132,8 @@ export class UI {
 
     clearHighlights() {
         const active = document.querySelectorAll(".active_state");
+        const active_dark = document.querySelectorAll(".active_state_dark");
+        const active_light = document.querySelectorAll(".active_state_light");
         const activeP = document.querySelectorAll(".active_state_on_piece");
         const clicked_dark = document.querySelectorAll(".clicked_dark");
         const clicked_light = document.querySelectorAll(".clicked_light");
@@ -138,6 +142,14 @@ export class UI {
 
         for (const f of active) {
             f.classList.remove("active_state");
+        }
+
+        for (const f of active_dark) {
+            f.classList.remove("active_state_dark");
+        }
+
+        for (const f of active_light) {
+            f.classList.remove("active_state_light");
         }
 
         for (const f of activeP) {
@@ -161,10 +173,11 @@ export class UI {
         }
     }
 
-    writeMoves(move, piece) {
+    // fucntions for history board
+
+    writeMoves(move, piece, afterStr, beforeStr, specialMove, specialStr) {
         const moves = this.moves;
         const [from, to] = this.getUndoPos(move.moveText);
-        const fromText = from;
         const toText = to;
 
         this.clearActiveNode();
@@ -215,6 +228,8 @@ export class UI {
         moves.removeChild(p);
         return this.getUndoPos(id);
     }
+
+    // helper functions
 
     getUndoPos(id) {
         return id.split("-");
