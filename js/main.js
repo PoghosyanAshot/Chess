@@ -41,7 +41,11 @@ class Game {
         const [fx, fy] = piece.position;
         const [tx, ty] = to;
         const moves = piece.get_possible_moves(this.board.grid);
+        const enemy = this.board.grid[tx][ty];
+        let beforeStr = "";
+        let afterStr = "";
         let legal = false;
+        let isWrite = false;
 
         // check if the piece can move
         for (const [mx, my] of moves) {
@@ -61,6 +65,7 @@ class Game {
 
         ++this.counterMoves;
 
+        // if currnet move castling
         if (piece.type === "king") {
             const row = piece.color === "black" ? 0 : 7;
 
@@ -69,17 +74,44 @@ class Game {
                 rook.move_to([row, 3]);
                 this.board.grid[row][3] = rook;
                 this.board.grid[row][0] = null;
+                this.ui.writeMoves(
+                    this.history[this.history.length - 1],
+                    piece,
+                    "",
+                    "",
+                    true,
+                    "o-o-o"
+                );
+                isWrite = true;
             } else if (ty == 6) {
                 const rook = this.board.grid[row][7];
                 rook.move_to([row, 5]);
                 this.board.grid[row][5] = rook;
                 this.board.grid[row][7] = null;
+                this.ui.writeMoves(
+                    this.history[this.history.length - 1],
+                    piece,
+                    "",
+                    "",
+                    true,
+                    "o-o"
+                );
+                isWrite = true;
             }
         }
 
-        if (this.board.grid[tx][ty]) {
-            this.eatenPieces[`${this.counterMoves}:${this.getId(tx, ty)}`] =
-                this.board.grid[tx][ty];
+        if (enemy) {
+            this.eatenPieces[`${this.counterMoves}:${this.getId(tx, ty)}`] = enemy;
+
+            if (piece.type == "pawn") {
+                if (enemy.type == "pawn") {
+                    beforeStr = "e" + "x";
+                } else {
+                    beforeStr = enemy.type[0] + "x";
+                }
+            } else {
+                beforeStr = "x";
+            }
         }
 
         piece.move_to([tx, ty]);
@@ -98,9 +130,16 @@ class Game {
             idx: this.counterMoves - 1,
         });
 
-        // change current player
+        if (this.isCheck(this.board.grid)) {
+            afterStr = "+";
+        }
+
+        // change current player and write move
         this.curentPlayer = this.curentPlayer == "white" ? "black" : "white";
-        this.ui.writeMoves(this.history[this.history.length - 1], piece);
+
+        if (!isWrite) {
+            this.ui.writeMoves(this.history[this.history.length - 1], piece, beforeStr, afterStr);
+        }
 
         // highlight the last move
         this.ui.highlightLastMove(this.lastMove);
@@ -227,6 +266,26 @@ class Game {
             }
         }
     }
+
+    // check, win && draw
+
+    isCheck() {
+        const size = 8;
+
+        for (let i = 0; i < size; ++i) {
+            for (let j = 0; j < size; ++j) {
+                const piece = this.board.grid[i][j];
+
+                if (piece && piece.color != this.curentPlayer) {
+                    return piece.isChecked(this.board.grid);
+                }
+            }
+        }
+    }
+
+    isWin() {}
+
+    isDraw() {}
 
     // helper functions
 

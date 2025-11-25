@@ -51,18 +51,18 @@ export class Piece {
         const map = this.legal_moves_in_board(board);
         const size = 8;
         let kingX = -1;
-        let kingy = -1;
+        let kingY = -1;
 
         for (let i = 0; i < size; ++i) {
             for (let j = 0; j < size; ++j) {
                 if (board[i][j] && board[i][j].type == "king" && board[i][j].color == this.color) {
                     kingX = i;
-                    kingy = j;
+                    kingY = j;
                 }
             }
         }
 
-        return map[kingX][kingy];
+        return map[kingX][kingY];
     }
 
     simulate_move(board_state, from, to) {

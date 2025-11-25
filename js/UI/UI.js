@@ -175,7 +175,7 @@ export class UI {
 
     // fucntions for history board
 
-    writeMoves(move, piece, afterStr, beforeStr, specialMove, specialStr) {
+    writeMoves(move, piece, beforeStr = "", afterStr = "", specialMove = false, specialStr = "") {
         const moves = this.moves;
         const [from, to] = this.getUndoPos(move.moveText);
         const toText = to;
@@ -188,13 +188,18 @@ export class UI {
         node.id = this.counterAllMoves++;
         node.classList.add("node", "active_node");
 
-        if (piece.type != "pawn") {
+        if (piece.type != "pawn" && !specialMove) {
             const icon = document.createElement("img");
             icon.src = `../../images/pieces/${piece.color}-${piece.type}.png`;
             node.appendChild(icon);
         }
 
-        span.innerHTML = toText;
+        if (specialMove) {
+            span.innerHTML = specialStr;
+        } else {
+            span.innerHTML = beforeStr + toText + afterStr;
+        }
+
         node.appendChild(span);
 
         if (this.lineRow && this.lineRow.children.length < 2) {
