@@ -1,5 +1,6 @@
 import { UI } from "./UI/UI.js";
 import { Board } from "./UI/board.js";
+import { Pawn } from "./piece/pawn.js";
 
 class Game {
     constructor() {
@@ -122,9 +123,64 @@ class Game {
         this.board.grid[tx][ty] = piece;
         this.board.grid[fx][fy] = null;
 
-        if (piece.type == "pawn" && this.board.grid[fx][ty]) {
-            this.board.grid[fx][ty] = null;
-            beforeStr = "e" + "x";
+        if (piece.type == "pawn") {
+            const lastRow = piece.color == "white" ? 0 : 7;
+
+            if (lastRow == tx) {
+                const id = this.getId(tx, ty);
+                const div = document.getElementById(id);
+                const new_piece = document.createElement("div");
+                const queen = document.createElement("img");
+                const knight = document.createElement("img");
+                const rook = document.createElement("img");
+                const bishop = document.createElement("img");
+
+                new_piece.classList.add("new-piece", lastRow == 0 ? "end-board" : "start-board");
+                new_piece.id = "new-piece";
+
+                queen.classList.add("update-piece");
+                knight.classList.add("update-piece");
+                rook.classList.add("update-piece");
+                bishop.classList.add("update-piece");
+
+                queen.id = "queen";
+                knight.id = "knight";
+                rook.id = "rook";
+                bishop.id = "bishop";
+
+                queen.src =
+                    lastRow == 0
+                        ? "../images/pieces/white-queen.png"
+                        : "../images/pieces/black-queen.png";
+
+                knight.src =
+                    lastRow == 0
+                        ? "../images/pieces/white-knight.png"
+                        : "../images/pieces/black-knight.png";
+
+                rook.src =
+                    lastRow == 0
+                        ? "../images/pieces/white-rook.png"
+                        : "../images/pieces/black-rook.png";
+
+                bishop.src =
+                    lastRow == 0
+                        ? "../images/pieces/white-bishop.png"
+                        : "../images/pieces/black-bishop.png";
+
+                new_piece.appendChild(queen);
+                new_piece.appendChild(knight);
+                new_piece.appendChild(rook);
+                new_piece.appendChild(bishop);
+
+                this.addEventsOnNewPieces(new_piece);
+                div.appendChild(new_piece);
+            }
+
+            if (this.board.grid[fx][ty]) {
+                this.board.grid[fx][ty] = null;
+                beforeStr = "e" + "x";
+            }
         }
 
         this.lastMove = {
@@ -251,6 +307,40 @@ class Game {
             this.ui.clearActiveNode();
             nodes[last].classList.add("active_node");
         });
+    }
+
+    addEventsOnNewPieces(new_piece) {
+        const pieces = new_piece.children;
+
+        for (const piece of pieces) {
+            piece.addEventListener("click", (event) => {
+                const field = event.target.closest(".field");
+                const newPiece = piece.id;
+                const [x, y] = this.getPosition(field.id);
+                const color = x == 0 ? "white" : "black";
+
+                switch (newPiece) {
+                    case "queen":
+                        this.board.grid[+x][+y] = this.board.init_queen(color, [+x, +y]);
+                        break;
+                    case "knight":
+                        this.board.grid[+x][+y] = this.board.init_knigth(color, [+x, +y]);
+                        break;
+                    case "rook":
+                        this.board.grid[+x][+y] = this.board.init_rook(color, [+x, +y]);
+                    case "bishop":
+                        this.board.grid[+x][+y] = this.board.init_bishop(color, [+x, +y]);
+                        break;
+                    default:
+                        break;
+                }
+
+                field.removeChild(new_piece);
+                
+                this.ui.clearPieces();
+                this.ui.showPieces(this.board.grid);
+            });
+        }
     }
 
     // init positions

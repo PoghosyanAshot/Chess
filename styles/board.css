@@ -109,7 +109,7 @@
     width: 100px;
     height: 100px;
     z-index: 10;
-    cursor:grab;
+    cursor: grab;
 }
 
 .player {
@@ -301,4 +301,24 @@
 .history_btn i {
     font-size: 30px;
     color: #c7c6c6;
+}
+
+.new-piece {
+    z-index: 1000;
+    position: absolute;
+    background-color: #fff;
+}
+
+.start-board {
+    bottom: 0;
+}
+
+.end-board {
+    top: 0;
+}
+
+.new-piece img {
+    cursor: pointer;    
+    width: 100px;
+    height: 96px;
 }

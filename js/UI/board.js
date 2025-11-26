@@ -59,4 +59,30 @@ export class Board {
 
         return state;
     }
+
+    // helpers
+    
+    init_queen(color, pos) {
+        return new Queen(color, pos, "queen") ;       
+    }
+
+    init_king(color, pos) {
+        return new King(color, pos, "king");        
+    }
+
+    init_rook(color, pos) {
+        return new Rook(color, pos, "rook");        
+    }
+
+    init_knigth(color, pos) {
+        return new Knight(color, pos, "knight");       
+    }
+
+    init_bishop(color, pos) {
+        return new Bishop(color, pos, "bishop");
+    }
+
+    init_pawn(color, pos) {
+        return new Pawn(color, pos, "pawn");
+    }
 }
