@@ -82,10 +82,13 @@ export class UI {
 
     // highlights
 
-    highlights(board_state, piece) {
+    highlights(board_state, piece, lastMove) {
         if (!piece) return;
 
-        const moves = piece.get_possible_moves(board_state);
+        const moves =
+            piece.type == "pawn"
+                ? piece.get_possible_moves(board_state, false, lastMove)
+                : piece.get_possible_moves(board_state);
         const [x, y] = piece.position;
         const clicked = document.getElementById(this.getId(x, y));
         clicked.classList.add((x + y) & 1 ? "clicked_dark" : "clicked_light");
@@ -108,8 +111,8 @@ export class UI {
     highlightLastMove(lastMove) {
         this.clearHighlightLastMove();
 
-        const [fx, fy] = lastMove[0];
-        const [tx, ty] = lastMove[1];
+        const [fx, fy] = lastMove.from;
+        const [tx, ty] = lastMove.to;
         const from = document.getElementById(this.getId(fx, fy));
         const to = document.getElementById(this.getId(tx, ty));
 

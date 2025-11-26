@@ -40,8 +40,12 @@ class Game {
     move(piece, to) {
         const [fx, fy] = piece.position;
         const [tx, ty] = to;
-        const moves = piece.get_possible_moves(this.board.grid);
+        const moves =
+            piece.type == "pawn"
+                ? piece.get_possible_moves(this.board.grid, false, this.lastMove)
+                : piece.get_possible_moves(this.board.grid);
         const enemy = this.board.grid[tx][ty];
+        const pawnDir = piece.type == "black" ? 1 : -1;
         let beforeStr = "";
         let afterStr = "";
         let legal = false;
@@ -118,10 +122,16 @@ class Game {
         this.board.grid[tx][ty] = piece;
         this.board.grid[fx][fy] = null;
 
-        this.lastMove = [
-            [fx, fy],
-            [+tx, +ty],
-        ];
+        if (piece.type == "pawn" && this.board.grid[fx][ty]) {
+            this.board.grid[fx][ty] = null;
+            beforeStr = "e" + "x";
+        }
+
+        this.lastMove = {
+            from: [fx, fy],
+            to: [tx, ty],
+            piece: piece,
+        };
 
         this.history.push({
             moveText: `${this.positions[`${fx}-${fy}`]}-${this.positions[`${tx}-${ty}`]}`,
@@ -167,7 +177,7 @@ class Game {
                     if (!piece || piece.color != this.curentPlayer) return;
                     this.selected = [x, y];
                     this.ui.clearHighlights();
-                    this.ui.highlights(this.board.grid, piece);
+                    this.ui.highlights(this.board.grid, piece, this.lastMove);
                     return;
                 }
 
@@ -175,7 +185,7 @@ class Game {
                 const [fx, fy] = this.selected;
                 const fPiece = this.board.grid[fx][fy];
 
-                const hasMoved = this.move(fPiece, [x, y]);
+                const hasMoved = this.move(fPiece, [+x, +y]);
 
                 if (hasMoved) {
                     ++this.moveId;
@@ -283,9 +293,9 @@ class Game {
         }
     }
 
-    isWin() {}
+    isWin() { }
 
-    isDraw() {}
+    isDraw() { }
 
     // helper functions
 
