@@ -24,25 +24,25 @@ export class Board {
 
         // white pieces
 
-        this.grid[7][0] = new Rook("white", [7, 0], "rook");
-        this.grid[7][1] = new Knight("white", [7, 1], "knight");
-        this.grid[7][2] = new Bishop("white", [7, 2], "bishop");
-        this.grid[7][3] = new Queen("white", [7, 3], "queen");
-        this.grid[7][4] = new King("white", [7, 4], "king");
-        this.grid[7][5] = new Bishop("white", [7, 5], "bishop");
-        this.grid[7][6] = new Knight("white", [7, 6], "knight");
-        this.grid[7][7] = new Rook("white", [7, 7], "rook");
+        this.grid[7][0] = this.init_rook("white", [7, 0]);
+        this.grid[7][1] = this.init_knigth("white", [7, 1]);
+        this.grid[7][2] = this.init_bishop("white", [7, 2]);
+        this.grid[7][3] = this.init_queen("white", [7, 3]);
+        this.grid[7][4] = this.init_king("white", [7, 4]);
+        this.grid[7][5] = this.init_bishop("white", [7, 5]);
+        this.grid[7][6] = this.init_knigth("white", [7, 6]);
+        this.grid[7][7] = this.init_rook("white", [7, 7]);
 
         // black pieces
 
-        this.grid[0][0] = new Rook("black", [0, 0], "rook");
-        this.grid[0][1] = new Knight("black", [0, 1], "knight");
-        this.grid[0][2] = new Bishop("black", [0, 2], "bishop");
-        this.grid[0][3] = new Queen("black", [0, 3], "queen");
-        this.grid[0][4] = new King("black", [0, 4], "king");
-        this.grid[0][5] = new Bishop("black", [0, 5], "bishop");
-        this.grid[0][6] = new Knight("black", [0, 6], "knight");
-        this.grid[0][7] = new Rook("black", [0, 7], "rook");
+        this.grid[0][0] = this.init_rook("black", [0, 0]);
+        this.grid[0][1] = this.init_knigth("black", [0, 1]);
+        this.grid[0][2] = this.init_bishop("black", [0, 2]);
+        this.grid[0][3] = this.init_queen("black", [0, 3]);
+        this.grid[0][4] = this.init_king("black", [0, 4]);
+        this.grid[0][5] = this.init_bishop("black", [0, 5]);
+        this.grid[0][6] = this.init_knigth("black", [0, 6]);
+        this.grid[0][7] = this.init_rook("black", [0, 7]);
     }
 
     getBoardState(board) {
@@ -60,22 +60,22 @@ export class Board {
         return state;
     }
 
-    // helpers
-    
+    // init pieces
+
     init_queen(color, pos) {
-        return new Queen(color, pos, "queen") ;       
+        return new Queen(color, pos, "queen");
     }
 
     init_king(color, pos) {
-        return new King(color, pos, "king");        
+        return new King(color, pos, "king");
     }
 
     init_rook(color, pos) {
-        return new Rook(color, pos, "rook");        
+        return new Rook(color, pos, "rook");
     }
 
     init_knigth(color, pos) {
-        return new Knight(color, pos, "knight");       
+        return new Knight(color, pos, "knight");
     }
 
     init_bishop(color, pos) {

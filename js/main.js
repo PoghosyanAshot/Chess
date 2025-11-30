@@ -1,6 +1,5 @@
 import { UI } from "./UI/UI.js";
 import { Board } from "./UI/board.js";
-import { Pawn } from "./piece/pawn.js";
 
 class Game {
     constructor() {
@@ -71,7 +70,7 @@ class Game {
         ++this.counterMoves;
 
         // if currnet move castling
-        if (piece.type === "king") {
+        if (piece.type === "king" && !piece.has_moved) {
             const row = piece.color === "black" ? 0 : 7;
 
             if (ty == 2) {
@@ -198,6 +197,53 @@ class Game {
 
         if (this.isCheck(this.board.grid)) {
             afterStr = "+";
+        }
+
+        if (this.isWin()) {
+            afterStr = "#";
+
+            // create all html elements
+            const winBoard = document.createElement("div");
+            const winBoardHeader = document.createElement("div");
+            const winBoardBody = document.createElement("div");
+            const message = document.createElement("span");
+            const backToMenu = document.createElement("div");
+            const playAgain = document.createElement("div");
+            const refToBack = document.createElement("a");
+
+            // add win message
+            message.innerHTML = `${this.curentPlayer} WIN!!!`;
+            winBoardHeader.appendChild(message);
+
+            // create referance for back to menu
+            refToBack.href = "../index.html";
+            backToMenu.appendChild(refToBack);
+
+            // create button for play again
+            playAgain.innerText = "Play Again";
+            refToBack.innerText = "Back to Menu";
+
+            // appening all compontents
+            winBoardBody.appendChild(refToBack);
+            winBoardBody.appendChild(playAgain);
+
+            winBoardHeader.appendChild(message);
+            winBoard.appendChild(winBoardHeader);
+            winBoard.appendChild(winBoardBody);
+
+            // adding id and clases to win board
+            winBoard.id = "win_board";
+            playAgain.id = "play_again";
+            winBoardHeader.classList.add("win-board_header");
+            winBoardBody.classList.add("win-board_body");
+            playAgain.classList.add("boton-elegante");
+            refToBack.classList.add("boton-elegante");
+
+            // append win-board to board
+            const board = document.getElementById("board");
+            board.appendChild(winBoard);
+
+            this.addEvenOnPlayAgainBtn();
         }
 
         // change current player and write move
@@ -328,6 +374,7 @@ class Game {
                         break;
                     case "rook":
                         this.board.grid[+x][+y] = this.board.init_rook(color, [+x, +y]);
+                        break;
                     case "bishop":
                         this.board.grid[+x][+y] = this.board.init_bishop(color, [+x, +y]);
                         break;
@@ -336,11 +383,19 @@ class Game {
                 }
 
                 field.removeChild(new_piece);
-                
+
                 this.ui.clearPieces();
                 this.ui.showPieces(this.board.grid);
             });
         }
+    }
+
+    addEvenOnPlayAgainBtn() {
+        const btn = document.getElementById("play_again");
+
+        btn.addEventListener("click", () => {
+            window.location.reload();
+        });
     }
 
     // init positions
@@ -383,7 +438,20 @@ class Game {
         }
     }
 
-    isWin() { }
+    isWin() {
+        const color = this.curentPlayer;
+        const size = 8;
+
+        for (let i = 0; i < size; ++i) {
+            for (let j = 0; j < size; ++j) {
+                const enemyKing = this.board.grid[i][j];
+
+                if (enemyKing && enemyKing.type == "king" && enemyKing.color != color) {
+                    return this.isCheck && this.isMat();
+                }
+            }
+        }
+    }
 
     isDraw() { }
 
@@ -395,6 +463,24 @@ class Game {
 
     getId(x, y) {
         return `${x}-${y}`;
+    }
+
+    isMat() {
+        const color = this.curentPlayer;
+        const size = 8;
+
+        for (let i = 0; i < size; ++i) {
+            for (let j = 0; j < size; ++j) {
+                const piece = this.board.grid[i][j];
+                if (!piece || piece.color == color) continue;
+
+                if (piece.get_possible_moves(this.board.grid).length) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
 
